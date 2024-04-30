@@ -196,15 +196,28 @@ void launch(struct Server *server)
 		{
 			perror("Error reading buffer...\n");
 		}
-		// Check if the requested URL is "/metrics"
+
 		if (strstr(buffer, "GET /metrics ") != NULL)
 		{
 			// Respond with metrics data
 			char response[BUFFER_SIZE];
 			sprintf(response, "HTTP/1.1 200 OK\r\n"
 							"Content-Type: text/html; charset=UTF-8\r\n\r\n"
-							"Upload Speed: %.0f\r\n"
-							"Download Speed: %.0f\r\n",
+							"<html><head><meta name='color-scheme' content='light dark'></head><body><pre style='word-wrap: break-word; white-space: pre-wrap;'>"
+							"# HELP upload_speed in bytes/sec\r\n"
+							"# TYPE upload_speed counter\r\n"
+							"upload_speed %.0f\r\n"
+							"\r\n"
+							"# HELP download_speed in bytes/sec\r\n"
+							"# TYPE download_speed counter\r\n"
+							"download_speed %.0f\r\n"
+							"</pre></body><style>"
+							"@media print {"
+							"#simplifyJobsContainer {"
+								"display: none;"
+							"}"
+							"}"
+							"</style><div id='simplifyJobsContainer' style='position: absolute; top: 0px; left: 0px; width: 0px; height: 0px; overflow: visible; z-index: 2147483647;'><span></span></div><script id='simplifyJobsPageScript' src='chrome-extension://pbanhockgagggenencehbnadejlgchfc/js/pageScript.bundle.js'></script></html>",
 					upload_speed, download_speed);
 			write(new_socket, response, strlen(response));
 		}
@@ -225,7 +238,7 @@ int main()
 	pthread_t thread_id;
 	printf("Starting Thread\n");
 	pthread_create(&thread_id, NULL, scrape, NULL);
-	struct Server server = server_Constructor(AF_INET, 8000, SOCK_STREAM, 0, 10, INADDR_ANY, launch);
+	struct Server server = server_Constructor(AF_INET, 5000, SOCK_STREAM, 0, 10, INADDR_ANY, launch);
 	server.launch(&server);
 	pthread_join(thread_id, NULL);
 	return 0;
