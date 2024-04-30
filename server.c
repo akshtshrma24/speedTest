@@ -6,8 +6,12 @@
 #include <curl/curl.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <pthread.h>
 
 #define BUFLEN 1024
+
+double upload_speed = 0;
+double download_speed = 0;
 
 double uploadSpeed()
 {
@@ -160,6 +164,21 @@ struct Server server_Constructor(int domain, int port, int service, int protocol
 	return server;
 }
 
+// Loop here that runs in thread
+// global variables that are locked and unlocked 
+// then the variables are in the returned html
+
+void *scrape(void *vargp) 
+{ 
+    while(0==0){
+		upload_speed = uploadSpeed();
+		download_speed = downloadSpeed();
+		sleep(5);
+	}
+	return NULL; 
+} 
+
+
 void launch(struct Server *server)
 {
 	char buffer[BUFFER_SIZE];
@@ -191,8 +210,19 @@ void launch(struct Server *server)
 						"</body>\r\n"
 						"</html>\r\n";
 		char str2[1000];
-		sprintf(str2, response, uploadSpeed(), downloadSpeed());
+		sprintf(str2, response, upload_speed, download_speed);
 		write(new_socket, str2, strlen(str2));
 		close(new_socket);
 	}
+}
+
+
+int main() {
+	pthread_t thread_id; 
+	printf("Starting Thread\n"); 
+	pthread_create(&thread_id, NULL, scrape, NULL); 
+    struct Server server = server_Constructor(AF_INET, 80, SOCK_STREAM, 0, 10, INADDR_ANY, launch);
+    server.launch(&server);
+	pthread_join(thread_id, NULL); 
+    return 0;
 }

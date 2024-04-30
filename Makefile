@@ -1,7 +1,7 @@
 default: test
 
 build:
-	gcc -o myServer main.c server.c -lcurl
+	gcc -o myServer server.c -lcurl
 
 test: build
 	./myServer 
