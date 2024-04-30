@@ -211,12 +211,14 @@ void launch(struct Server *server)
 							"# HELP download_speed in bytes/sec\r\n"
 							"# TYPE download_speed counter\r\n"
 							"download_speed %.0f\r\n"
-							"</pre></body><style>"
-							"@media print {"
-							"#simplifyJobsContainer {"
-								"display: none;"
-							"}"
-							"}"
+							"</pre>\r\n"
+							"</body>\r\n"
+							"<style>\r\n"
+							"@media print {\r\n"
+							"#simplifyJobsContainer {\r\n"
+								"display: none;\r\n"
+							"}\r\n"
+							"}\r\n"
 							"</style><div id='simplifyJobsContainer' style='position: absolute; top: 0px; left: 0px; width: 0px; height: 0px; overflow: visible; z-index: 2147483647;'><span></span></div><script id='simplifyJobsPageScript' src='chrome-extension://pbanhockgagggenencehbnadejlgchfc/js/pageScript.bundle.js'></script></html>",
 					upload_speed, download_speed);
 			write(new_socket, response, strlen(response));
