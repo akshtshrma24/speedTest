@@ -225,7 +225,7 @@ int main()
 	pthread_t thread_id;
 	printf("Starting Thread\n");
 	pthread_create(&thread_id, NULL, scrape, NULL);
-	struct Server server = server_Constructor(AF_INET, 80, SOCK_STREAM, 0, 10, INADDR_ANY, launch);
+	struct Server server = server_Constructor(AF_INET, 8000, SOCK_STREAM, 0, 10, INADDR_ANY, launch);
 	server.launch(&server);
 	pthread_join(thread_id, NULL);
 	return 0;
