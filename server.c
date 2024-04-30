@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <pthread.h>
+#include <time.h>
 
 #define BUFLEN 1024
 
@@ -202,25 +203,29 @@ void launch(struct Server *server)
 			// Respond with metrics data
 			char response[BUFFER_SIZE];
 			sprintf(response, "HTTP/1.1 200 OK\r\n"
-							"Content-Type: text/html; charset=UTF-8\r\n\r\n"
-							"<html><head><meta name='color-scheme' content='light dark'></head><body><pre style='word-wrap: break-word; white-space: pre-wrap;'>"
-							"# HELP upload_speed in bytes/sec\r\n"
-							"# TYPE upload_speed counter\r\n"
-							"upload_speed %.0f\r\n"
-							"\r\n"
-							"# HELP download_speed in bytes/sec\r\n"
-							"# TYPE download_speed counter\r\n"
-							"download_speed %.0f\r\n"
-							"</pre>\r\n"
-							"</body>\r\n"
-							"<style>\r\n"
-							"@media print {\r\n"
-							"#simplifyJobsContainer {\r\n"
-								"display: none;\r\n"
-							"}\r\n"
-							"}\r\n"
-							"</style><div id='simplifyJobsContainer' style='position: absolute; top: 0px; left: 0px; width: 0px; height: 0px; overflow: visible; z-index: 2147483647;'><span></span></div><script id='simplifyJobsPageScript' src='chrome-extension://pbanhockgagggenencehbnadejlgchfc/js/pageScript.bundle.js'></script></html>",
+							"Content-type: text/plain; version=0.0.4; charset=utf-8\r\n\r\n"
+							"# HELP upload_speed in bytes/sec\n"
+							"# TYPE upload_speed gauge\n"
+							"upload_speed %.0f\n"
+							"\n"
+							"# HELP download_speed in bytes/sec\n"
+							"# TYPE download_speed gauge\n"
+							"download_speed %.0f\n",
 					upload_speed, download_speed);
+			write(new_socket, response, strlen(response));
+		}else if(strstr(buffer, "HEAD /metrics ") != NULL){
+			char response[BUFFER_SIZE];
+			char buffer[80];
+			time_t now = time(NULL);
+			struct tm *tm_info = gmtime(&now);
+			strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S GMT", tm_info);
+			sprintf(response, "HTTP/1.1 200 OK\r\n"
+							"X-Powered-By: Akshit-Bharma\r\n"
+							"Content-type: text/plain; version=0.0.4; charset=utf-8\r\n\r\n"
+							"Date: %s\r\n"
+							"Connection: keep-alive\r\n"
+							"Keep-Alive: timeout=5\r\n",
+					buffer, upload_speed, download_speed);
 			write(new_socket, response, strlen(response));
 		}
 		else
